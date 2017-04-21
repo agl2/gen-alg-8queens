@@ -28,7 +28,7 @@ def crossover(ind1, ind2):
     else: #troca os pontos de crossover
         cxpoint1, cxpoint2 = cxpoint2, cxpoint1
     
-
+    #aplica o crossover entre os pontos de crossover
     for i in xrange(cxpoint1, cxpoint2):
 
         temp1 = ind1[i]
