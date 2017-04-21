@@ -150,7 +150,8 @@ def main():
             populacao.pop()
 
         populacaoOld = populacao
-
+        print 'Iteracao ' + str(i)
+        print 'Melhor fitness ' +  str(populacao[0].fitness)
         if(populacao[0].fitness == 0):
             break
         i += 1
