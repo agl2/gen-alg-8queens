@@ -16,15 +16,16 @@ def crossover(ind1, ind2):
     ind1 = binVectorToIntVector(ind1)
     ind2 = binVectorToIntVector(ind2)    
     
+    #inicializa a posicao de cada individuos
     for i in xrange(size):
         p1[ind1[i]] = i
         p2[ind2[i]] = i
-    
+    #escolhe os pontos de crossover
     cxpoint1 = random.randint(0, size)
     cxpoint2 = random.randint(0, size - 1)
     if cxpoint2 >= cxpoint1:
         cxpoint2 += 1
-    else: 
+    else: #troca os pontos de crossover
         cxpoint1, cxpoint2 = cxpoint2, cxpoint1
     
 
