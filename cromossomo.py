@@ -9,7 +9,7 @@ class Cromossomo:
         self.fitness = fitness(genes)
 
 def crossover(pai1, pai2):
-    corte = int(random.uniform(1,7))
+    corte = int(random.uniform(1,6))
     filho1 = []
     filho2 = []
 #    print (corte+1)
@@ -120,37 +120,52 @@ def main():
         
         #nao sei se ta certo usar essa funcao para delimitar a probabilidade de ocorre um crossover
         #     random.uniform(0,1) <= 0.9
-        
+
+        genes1 = []
+        genes2 = []
         if(random.uniform(0,1) <= 0.9):
             genes1, genes2 = crossover(pais[0].genes,pais[1].genes)
+        
            
         #para mutacao seria
         #     random.uniform(0,1) <= 0.4
         if(random.uniform(0,1) <= 0.4):
-            genes1 = mutacao(genes1)
-            genes2 = mutacao(genes2)
-            
+            if(genes1 != [] and genes2 != []):
+                genes1 = mutacao(genes1)
+                genes2 = mutacao(genes2)
+            else:
+                genes1 = mutacao(pais[0].genes)
+                genes2 = mutacao(pais[1].genes)
+                
 
-        filho1 = Cromossomo(genes1)
-        filho2 = Cromossomo(genes2)
-        #os filhos sao inseridos na populacao
-        populacao.append(filho1)
-        populacao.append(filho2)
-        
-        
-        #ordena a populacao pelo fitness para poder excluir os piores
-        populacao.sort(key=lambda p : p.fitness)
-        populacao.pop()
-        populacao.pop()
+        if(genes1 != [] and genes2 != []):
+            filho1 = Cromossomo(genes1)
+            filho2 = Cromossomo(genes2)
+            #os filhos sao inseridos na populacao
+            populacao.append(filho1)
+            populacao.append(filho2)
+            #ordena a populacao pelo fitness para poder excluir os piores
+            populacao.sort(key=lambda p : p.fitness)
+            populacao.pop()
+            populacao.pop()
+
+        populacaoOld = populacao
+
         if(populacao[0].fitness == 0):
             break
         i += 1
-	#End While
+    #End While
+        
     print 'Iteracao ' + str(i)
     print 'Cromossomo ' + str(binVectorToIntVector(populacao[0].genes))
     print 'Fitness '+ str((populacao[0].fitness))
 
-    for ind in populacao:
+    for ind in populacao[0:5]:
+        print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
+        print 'Fitness: ' + str(ind.fitness)
+
+    print 'Iteracao ' + str(i-1)
+    for ind in populacaoOld[0:5]:
         print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
         print 'Fitness: ' + str(ind.fitness)
         
