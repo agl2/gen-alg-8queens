@@ -4,10 +4,15 @@ import itertools
 
 class Cromossomo:
 
-    def __init__(self, genes):
+    def __init__(self, genes, pai1, pai2, geracao, gerador):
         self.genes = genes
         self.fitness = fitness(genes)
-
+        self.pai1 = pai1
+        self.pai2 = pai2
+        self.geracao = geracao
+        self.gerador = gerador
+		
+		
 def crossover(pai1, pai2):
     corte = int(random.uniform(1,6))
     filho1 = []
@@ -40,15 +45,17 @@ def crossover(pai1, pai2):
 def mutacao(gene):
     t1 = int(random.uniform(1,7))
     t2 = int(random.uniform(1,7))
+    gene_novo = []
+    gene_novo += gene
 #    print('t1 ='+ repr(t1))
 #    print('t2 ='+ repr(t2))
     temp = 0
     while(t1 == t2):
         t2 = int(random.uniform(1,7))
-    temp = gene[t2]
-    gene[t2] = gene[t1]
-    gene[t1] = temp
-    return gene
+    temp = gene_novo[t2]
+    gene_novo[t2] = gene_novo[t1]
+    gene_novo[t1] = temp
+    return gene_novo
 
     
 #usar permutions se for para apenas permutacoes e product se for para todas as combinacoes possiveis
@@ -58,7 +65,7 @@ def iniciar_populacao():
     resultado = list(itertools.permutations(set,8))
     final = random.sample(resultado,100)
     for i in range(len(final)):
-        final[i] = Cromossomo(intVectorToBinVector(final[i]))
+        final[i] = Cromossomo(intVectorToBinVector(final[i]), None, None, 0, 'I')
     return final
 
 
@@ -118,30 +125,39 @@ def main():
 #        print(pais[0].genes)
 #        print(pais[1].genes)
         
-        #nao sei se ta certo usar essa funcao para delimitar a probabilidade de ocorre um crossover
-        #     random.uniform(0,1) <= 0.9
+        pai1 = pais[0]  
+        pai2 = pais[1]
 
-        
-        genes1 = []
-        genes2 = []
+        filho1 = None
+        filho2 = None
+		
+	#random.uniform(0,1) <= 0.9
         if(random.uniform(0,1) <= 0.9):
-            genes1, genes2 = crossover(pais[0].genes,pais[1].genes)
+            genes1, genes2 = crossover(pai1.genes,pai2.genes)
+            filho1 = Cromossomo(genes1, pai1, pai2, i+i, 'C')
+            filho2 = Cromossomo(genes1, pai1, pai2, i+i, 'C')
         
            
         #para mutacao seria
         #     random.uniform(0,1) <= 0.4
         if(random.uniform(0,1) <= 0.4):
-            if(genes1 != [] and genes2 != []):
-                genes1 = mutacao(genes1)
-                genes2 = mutacao(genes2)
+            if(filho1 is not None):
+                filho1.genes = mutacao(filho1.genes)
+                filho1.fitness = fitness(filho1.genes)
+                filho1.gerador = 'B'
             else:
-                genes1 = mutacao(pais[0].genes)
-                genes2 = mutacao(pais[1].genes)
+                filho1 = Cromossomo(pai1.genes, pai1, None, i+i, 'M')
+
+            if(filho2 is not None):
+                filho2.genes = mutacao(filho2.genes)
+                filho2.fitness = fitness(filho2.genes)
+                filho2.gerador = 'B'
+            else:
+                filho2 = Cromossomo(pai2.genes, pai2, None, i+i, 'M')
+
                 
 
-        if(genes1 != [] and genes2 != []):
-            filho1 = Cromossomo(genes1)
-            filho2 = Cromossomo(genes2)
+        if(filho1 is not None and filho2 is not None):
             #os filhos sao inseridos na populacao
             populacao.append(filho1)
             populacao.append(filho2)
@@ -150,15 +166,40 @@ def main():
             populacao.pop()
             populacao.pop()
 
-        print '\n\nIteracao ' + str(i)
-        print 'Melhor fitness ' +  str(populacao[0].fitness)
-        for ind in populacao[0:5]:
-            print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
-            print 'Fitness: ' + str(ind.fitness)
+        #print '\n\nIteracao ' + str(i)
+        #print 'Melhor fitness ' +  str(populacao[0].fitness)
+        #for ind in populacao[0:5]:
+          #  print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
+          # print 'Fitness: ' + str(ind.fitness)
         if(populacao[0].fitness == 0):
             break
         i += 1
     #End While
+
+    print '\n\nMelhor individuo:'
+    print 'Genes: ' +  str(binVectorToIntVector(populacao[0].genes))
+    print 'Fitness ' +  str(populacao[0].fitness)
+    print 'Gerador ' +  str(populacao[0].gerador)
+    print 'Geracao ' +  str(populacao[0].geracao)
+    pai1 = populacao[0].pai1
+    pai2 = populacao[0].pai2
+    print 'Pai1: '
+    if(pai1 is not None):
+        print '\tGenes ' + str(binVectorToIntVector(pai1.genes))
+        print '\tFitness ' +  str(pai1.fitness)
+        print '\tGerador ' +  str(pai1.gerador)
+        print '\tGeracao ' +  str(pai1.geracao)
+    else:
+        print '\tNone'
+
+    print 'Pai2: '
+    if(pai2 is not None):
+        print '\tGenes ' + str(binVectorToIntVector(pai2.genes))
+        print '\tFitness ' +  str(pai2.fitness)
+        print '\tGerador ' +  str(pai2.gerador)
+        print '\tGeracao ' +  str(pai2.geracao)
+    else:
+        print '\tNone'
 
 
 if __name__ == '__main__':
