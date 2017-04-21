@@ -121,6 +121,7 @@ def main():
         #nao sei se ta certo usar essa funcao para delimitar a probabilidade de ocorre um crossover
         #     random.uniform(0,1) <= 0.9
 
+        
         genes1 = []
         genes2 = []
         if(random.uniform(0,1) <= 0.9):
@@ -149,29 +150,15 @@ def main():
             populacao.pop()
             populacao.pop()
 
-        populacaoOld = populacao
-        print 'Iteracao ' + str(i)
+        print '\n\nIteracao ' + str(i)
         print 'Melhor fitness ' +  str(populacao[0].fitness)
+        for ind in populacao[0:5]:
+            print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
+            print 'Fitness: ' + str(ind.fitness)
         if(populacao[0].fitness == 0):
             break
         i += 1
     #End While
-        
-    print 'Iteracao ' + str(i)
-    print 'Cromossomo ' + str(binVectorToIntVector(populacao[0].genes))
-    print 'Fitness '+ str((populacao[0].fitness))
-
-    for ind in populacao[0:5]:
-        print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
-        print 'Fitness: ' + str(ind.fitness)
-
-    print 'Iteracao ' + str(i-1)
-    for ind in populacaoOld[0:5]:
-        print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
-        print 'Fitness: ' + str(ind.fitness)
-        
-    
-    
 
 
 if __name__ == '__main__':
