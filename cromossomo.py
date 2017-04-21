@@ -84,7 +84,14 @@ def intVectorToBinVector(intVector):
         binVector.append(binElement)
 
     return binVector
-        
+
+def binVectorToIntVector(binVector):
+    intVector = []
+    for binElement in binVector:
+        intElement = int(binElement, 2)
+        intVector.append(intElement)
+
+    return intVector
 
 
 def main():
@@ -94,7 +101,7 @@ def main():
     i = 0
 
     #inicia a populacao com 100 individuos e os ordena de acordo com o fitness
-    populacao = iniciar_populacao()
+    populacao = iniciar_populacao()      
     populacao.sort(key=lambda p : p.fitness)
     
     #a partir daqui tem que ser feito o laco para poder tentar encontrar a solucao para o problema
@@ -110,24 +117,22 @@ def main():
         #pega os dois com melhor fitness para fazer o crossover
 #        print(pais[0].genes)
 #        print(pais[1].genes)
-    
-        filho1 = pais[0]
-        filho2 = pais[1]    
-        
         
         #nao sei se ta certo usar essa funcao para delimitar a probabilidade de ocorre um crossover
         #     random.uniform(0,1) <= 0.9
+        
         if(random.uniform(0,1) <= 0.9):
-            filho1.genes, filho2.genes = crossover(filho1.genes,filho2.genes)
+            genes1, genes2 = crossover(pais[0].genes,pais[1].genes)
            
         #para mutacao seria
         #     random.uniform(0,1) <= 0.4
         if(random.uniform(0,1) <= 0.4):
-            filho1.genes = mutacao(filho1.genes)
-            filho2.genes = mutacao(filho2.genes)
+            genes1 = mutacao(genes1)
+            genes2 = mutacao(genes2)
             
 
-        
+        filho1 = Cromossomo(genes1)
+        filho2 = Cromossomo(genes2)
         #os filhos sao inseridos na populacao
         populacao.append(filho1)
         populacao.append(filho2)
@@ -138,14 +143,17 @@ def main():
         populacao.pop()
         populacao.pop()
         if(populacao[0].fitness == 0):
-            print(populacao[0].genes)
-            print(populacao[0].fitness)
-            print (i)
             break
         i += 1
-    print(i)
-    print(populacao[0].genes)
-    print(populacao[0].fitness)
+	#End While
+    print 'Iteracao ' + str(i)
+    print 'Cromossomo ' + str(binVectorToIntVector(populacao[0].genes))
+    print 'Fitness '+ str((populacao[0].fitness))
+
+    for ind in populacao:
+        print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
+        print 'Fitness: ' + str(ind.fitness)
+        
     
     
 
