@@ -1,5 +1,11 @@
+# -*- coding: cp1252 -*-
 import random
 import itertools
+import Gnuplot
+
+FITNESS_TYPE = 1 #fitness = choques
+#FITNESS_TYPE = 2  #fitness = 1/(1+choques)
+
 
 
 class Cromossomo:
@@ -82,7 +88,10 @@ def fitness(genes):
                     clashes += 1
         #endFor
     #endFor
-    return clashes
+    if FITNESS_TYPE == 1:
+        return clashes
+    else:
+        return float(1)/(1 + clashes)
 
 def intVectorToBinVector(intVector):
     binVector = []
@@ -108,18 +117,28 @@ def main():
     i = 0
 
     #inicia a populacao com 100 individuos e os ordena de acordo com o fitness
-    populacao = iniciar_populacao()      
-    populacao.sort(key=lambda p : p.fitness)
+    populacao = iniciar_populacao()
+    #ordena os pais de acordo com o fitness
+    if FITNESS_TYPE == 1:
+        populacao.sort(key=lambda p : p.fitness)
+    else:
+        populacao.sort(key=lambda p : p.fitness, reverse=True)
+
+
+    media = []
+    maximo = []
+    minimo = []
     
     #a partir daqui tem que ser feito o laco para poder tentar encontrar a solucao para o problema
-    
     while(i <= 10000):
     
         #seleciona 5 pais de forma aleatoria
         pais = random.sample(populacao, 5)
         
-        #ordena os pais de acordo com o fitness
-        pais.sort(key=lambda p : p.fitness)
+        if FITNESS_TYPE == 1:
+            pais.sort(key=lambda p : p.fitness)
+        else:
+            pais.sort(key=lambda p : p.fitness, reverse=True)
         
         #pega os dois com melhor fitness para fazer o crossover
 #        print(pais[0].genes)
@@ -147,7 +166,10 @@ def main():
                 filho1.gerador = 'B'
             else:
                 filho1 = Cromossomo(pai1.genes, pai1, None, i+i, 'M')
-
+                
+        #para mutacao seria
+        #     random.uniform(0,1) <= 0.4
+        if(random.uniform(0,1) <= 0.4):
             if(filho2 is not None):
                 filho2.genes = mutacao(filho2.genes)
                 filho2.fitness = fitness(filho2.genes)
@@ -162,27 +184,52 @@ def main():
             populacao.append(filho1)
             populacao.append(filho2)
             #ordena a populacao pelo fitness para poder excluir os piores
-            populacao.sort(key=lambda p : p.fitness)
+            if FITNESS_TYPE == 1:
+                populacao.sort(key=lambda p : p.fitness)
+            else:
+                populacao.sort(key=lambda p : p.fitness, reverse=True)
+
             populacao.pop()
             populacao.pop()
+
+        soma = 0
+        for ind in populacao:
+           soma += ind.fitness
+        media.append(soma/len(populacao))
+
+        if FITNESS_TYPE == 1:
+            minimo.append(populacao[0].fitness)
+            maximo.append(populacao[-1].fitness)
+        else:
+            maximo.append(populacao[0].fitness)
+            minimo.append(populacao[-1].fitness)
+
 
         #print '\n\nIteracao ' + str(i)
         #print 'Melhor fitness ' +  str(populacao[0].fitness)
         #for ind in populacao[0:5]:
-          #  print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
-          # print 'Fitness: ' + str(ind.fitness)
-        if(populacao[0].fitness == 0):
-            break
+        #    print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
+        #    print 'Fitness: ' + str(ind.fitness)
+        if FITNESS_TYPE == 1:
+            if(populacao[0].fitness == 0):
+                melhorIndividuo = populacao[0]
+            if(populacao[-1].fitness == 0):
+                break
+        else:
+            if(populacao[0].fitness == 1):
+                melhorIndividuo = populacao[0]
+            if(populacao[-1].fitness == 1):
+                break
         i += 1
     #End While
 
     print '\n\nMelhor individuo:'
-    print 'Genes: ' +  str(binVectorToIntVector(populacao[0].genes))
-    print 'Fitness ' +  str(populacao[0].fitness)
-    print 'Gerador ' +  str(populacao[0].gerador)
-    print 'Geracao ' +  str(populacao[0].geracao)
-    pai1 = populacao[0].pai1
-    pai2 = populacao[0].pai2
+    print 'Genes: ' +  str(binVectorToIntVector(melhorIndividuo.genes))
+    print 'Fitness ' +  str(melhorIndividuo.fitness)
+    print 'Gerador ' +  str(melhorIndividuo.gerador)
+    print 'Geracao ' +  str(melhorIndividuo.geracao)
+    pai1 = melhorIndividuo.pai1
+    pai2 = melhorIndividuo.pai2
     print 'Pai1: '
     if(pai1 is not None):
         print '\tGenes ' + str(binVectorToIntVector(pai1.genes))
@@ -201,6 +248,20 @@ def main():
     else:
         print '\tNone'
 
+    gplt = Gnuplot.Gnuplot(debug=1)
+
+    gplt.reset()
+    mediaData = Gnuplot.Data(media, title='Fitness Médio')
+    minData = Gnuplot.Data(minimo, title='Fitness Mínimo')
+    maxData = Gnuplot.Data(maximo, title='Fitness Máximo')
+    gplt('set data style lines')
+    gplt.xlabel('Input')
+    gplt.ylabel('Output')
+    if FITNESS_TYPE == 2:
+        gplt('set yrange [0:1.5]')
+        
+    gplt.plot(maxData, mediaData, minData)
+    raw_input('Please press return to continue...\n')
 
 if __name__ == '__main__':
     main()
