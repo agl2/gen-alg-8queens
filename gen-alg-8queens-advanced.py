@@ -163,7 +163,7 @@ def main():
         if(random.uniform(0,1) <= 0.9):
             genes1, genes2 = crossover(pai1.genes,pai2.genes)
             filho1 = Cromossomo(genes1, pai1, pai2, i+i, 'C')
-            filho2 = Cromossomo(genes1, pai1, pai2, i+i, 'C')
+            filho2 = Cromossomo(genes2, pai1, pai2, i+i, 'C')
         
            
         #para mutacao seria
