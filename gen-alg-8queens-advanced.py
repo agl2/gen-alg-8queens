@@ -102,6 +102,17 @@ def binVectorToIntVector(binVector):
 
     return intVector
 
+def fitness_total(populacao):
+    total = 0    
+    for i in range(len(populacao)):
+        total += 1/(1 + populacao[i].fitness)
+    return total
+
+#nao sei se essa funcao ta certa qq coisa pode alterar
+def probabilidade_individuo(ind, total):
+    prob = 1/(1 + ind.fitness)
+    return prob/total
+    
 
 def main():
     
@@ -119,6 +130,7 @@ def main():
     
         #seleciona 5 pais de forma aleatoria
         pais = random.sample(populacao, 5)
+        
         
         #ordena os pais de acordo com o fitness
         pais.sort(key=lambda p : p.fitness)
@@ -139,7 +151,7 @@ def main():
            
         #para mutacao seria
         #     random.uniform(0,1) <= 0.4
-        if(random.uniform(0,1) <= 0.1):
+        if(random.uniform(0,1) <= 0.01):
             if(genes1 != [] and genes2 != []):
                 genes1 = mutacao(genes1)
                 genes2 = mutacao(genes2)
