@@ -151,7 +151,7 @@ def main():
            
         #para mutacao seria
         #     random.uniform(0,1) <= 0.4
-        if(random.uniform(0,1) <= 0.01):
+        if(random.uniform(0,1) <= 0.1):
             if(genes1 != [] and genes2 != []):
                 genes1 = mutacao(genes1)
                 genes2 = mutacao(genes2)
