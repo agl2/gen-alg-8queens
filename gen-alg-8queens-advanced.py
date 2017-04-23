@@ -115,15 +115,25 @@ def binVectorToIntVector(binVector):
     return intVector
 
 def fitness_total(populacao):
-    total = 0    
+    total = 0
+    pesos = []    
     for i in range(len(populacao)):
-        total += 1/(1 + populacao[i].fitness)
-    return total
+        pesos.append(populacao[i].fitness)
+        if FITNESS_TYPE == 1:        
+            total += 1/(1 + populacao[i].fitness)
+        else:
+            total += 1/populacao[i].fitness
+    return total, pesos
 
-#nao sei se essa funcao ta certa qq coisa pode alterar
-def probabilidade_individuo(ind, total):
-    prob = 1/(1 + ind.fitness)
-    return prob/total
+def roleta(populacao):
+    total, pesos = fitness_total(populacao)
+    sorteio = random.randint(0,total)
+    posicaoEscolhida = -1
+    while(sorteio>0):
+        posicaoEscolhida += 1
+        sorteio -= pesos[posicaoEscolhida]
+    return populacao[posicaoEscolhida]
+    
     
 
 def main():
@@ -149,19 +159,24 @@ def main():
     while(i <= 10000):
     
         #seleciona 5 pais de forma aleatoria
-        pais = random.sample(populacao, 5)
-        
-        if FITNESS_TYPE == 1:
-            pais.sort(key=lambda p : p.fitness)
-        else:
-            pais.sort(key=lambda p : p.fitness, reverse=True)
+#        pais = random.sample(populacao, 5)
+#        
+#        if FITNESS_TYPE == 1:
+#            pais.sort(key=lambda p : p.fitness)
+#        else:
+#            pais.sort(key=lambda p : p.fitness, reverse=True)
         
         #pega os dois com melhor fitness para fazer o crossover
 #        print(pais[0].genes)
 #        print(pais[1].genes)
         
-        pai1 = pais[0]  
-        pai2 = pais[1]
+        pai1 = roleta(populacao)
+        populacao.remove(pai1)
+        pai2 = roleta(populacao)
+        populacao.append(pai1)
+        
+#        pai1 = pais[0]  
+#        pai2 = pais[1]
 
         filho1 = None
         filho2 = None
