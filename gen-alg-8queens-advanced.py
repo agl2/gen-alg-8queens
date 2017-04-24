@@ -118,10 +118,11 @@ def fitness_total(populacao):
     total = 0
     pesos = []    
     for i in range(len(populacao)):
-        pesos.append(populacao[i].fitness)
-        if FITNESS_TYPE == 1:        
+        if FITNESS_TYPE == 1:    
+            pesos.append(1/(1+populacao[i].fitness))
             total += 1/(1 + populacao[i].fitness)
         else:
+            pesos.append(populacao[i].fitness)
             total += 1/populacao[i].fitness
     return total, pesos
 
@@ -174,6 +175,7 @@ def main():
         populacao.remove(pai1)
         pai2 = roleta(populacao)
         populacao.append(pai1)
+        
         
 #        pai1 = pais[0]  
 #        pai2 = pais[1]
