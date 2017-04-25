@@ -3,9 +3,8 @@ import random
 import itertools
 import Gnuplot
 
-#FITNESS_TYPE = 1 #fitness = choques
-FITNESS_TYPE = 2  #fitness = 1/(1+choques)
-
+FITNESS_TYPE = 1 #fitness = choques
+#FITNESS_TYPE = 2  #fitness = 1/(1+choques)
 
 
 class Cromossomo:
@@ -17,8 +16,7 @@ class Cromossomo:
         self.pai2 = pai2
         self.geracao = geracao
         self.gerador = gerador
-		
-		
+
 def crossover(ind1, ind2):
 
     size = min(len(ind1), len(ind2))
@@ -118,6 +116,28 @@ def binVectorToIntVector(binVector):
 
     return intVector
 
+def fitness_total(populacao):
+    total = 0
+    pesos = []    
+    for i in range(len(populacao)):
+        if FITNESS_TYPE == 1:    
+            pesos.append(1/(1+populacao[i].fitness))
+            total += 1/(1 + populacao[i].fitness)
+        else:
+            pesos.append(populacao[i].fitness)
+            total += 1/populacao[i].fitness
+    return total, pesos
+
+def roleta(populacao):
+    total, pesos = fitness_total(populacao)
+    sorteio = random.randint(0,total)
+    posicaoEscolhida = -1
+    while(sorteio>0):
+        posicaoEscolhida += 1
+        sorteio -= pesos[posicaoEscolhida]
+    return populacao[posicaoEscolhida]
+    
+    
 
 def main():
     
@@ -142,19 +162,25 @@ def main():
     while(i <= 10000):
     
         #seleciona 5 pais de forma aleatoria
-        pais = random.sample(populacao, 5)
-        
-        if FITNESS_TYPE == 1:
-            pais.sort(key=lambda p : p.fitness)
-        else:
-            pais.sort(key=lambda p : p.fitness, reverse=True)
+#        pais = random.sample(populacao, 5)
+#        
+#        if FITNESS_TYPE == 1:
+#            pais.sort(key=lambda p : p.fitness)
+#        else:
+#            pais.sort(key=lambda p : p.fitness, reverse=True)
         
         #pega os dois com melhor fitness para fazer o crossover
 #        print(pais[0].genes)
 #        print(pais[1].genes)
         
-        pai1 = pais[0]  
-        pai2 = pais[1]
+        pai1 = roleta(populacao)
+        populacao.remove(pai1)
+        pai2 = roleta(populacao)
+        populacao.append(pai1)
+        
+        
+#        pai1 = pais[0]  
+#        pai2 = pais[1]
 
         filho1 = None
         filho2 = None
