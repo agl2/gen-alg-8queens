@@ -2,10 +2,10 @@
 import random
 import itertools
 import Gnuplot
+import copy
 
 FITNESS_TYPE = 1 #fitness = choques
 #FITNESS_TYPE = 2  #fitness = 1/(1+choques)
-
 
 
 class Cromossomo:
@@ -17,6 +17,10 @@ class Cromossomo:
         self.pai2 = pai2
         self.geracao = geracao
         self.gerador = gerador
+    def __copy__(self):
+        return Cromossomo(self.genes, None, None, self.geracao, self.gerador)
+    def __deepcopy__(self, memo):
+        return Cromossomo(self.genes, copy.copy(self.pai1), copy.copy(self.pai2), self.geracao, self.gerador)
 		
 		
 def crossover(pai1, pai2):
@@ -109,6 +113,32 @@ def binVectorToIntVector(binVector):
 
     return intVector
 
+def mostrarMelhorIndividuo(melhorIndividuo):
+    print '\n\nMelhor individuo:'
+    print 'Genes: ' +  str(binVectorToIntVector(melhorIndividuo.genes))
+    print 'Fitness ' +  str(melhorIndividuo.fitness)
+    print 'Gerador ' +  str(melhorIndividuo.gerador)
+    print 'Geracao ' +  str(melhorIndividuo.geracao)
+    pai1 = melhorIndividuo.pai1
+    pai2 = melhorIndividuo.pai2
+    print 'Pai1: '
+    if(pai1 is not None):
+        print '\tGenes ' + str(binVectorToIntVector(pai1.genes))
+        print '\tFitness ' +  str(pai1.fitness)
+        print '\tGerador ' +  str(pai1.gerador)
+        print '\tGeracao ' +  str(pai1.geracao)
+    else:
+        print '\tNone'
+
+    print 'Pai2: '
+    if(pai2 is not None):
+        print '\tGenes ' + str(binVectorToIntVector(pai2.genes))
+        print '\tFitness ' +  str(pai2.fitness)
+        print '\tGerador ' +  str(pai2.gerador)
+        print '\tGeracao ' +  str(pai2.geracao)
+    else:
+        print '\tNone'
+    
 
 def main():
     
@@ -128,6 +158,7 @@ def main():
     media = []
     maximo = []
     minimo = []
+    melhorIndSalvo = False
     
     #a partir daqui tem que ser feito o laco para poder tentar encontrar a solucao para o problema
     while(i <= 10000):
@@ -153,8 +184,8 @@ def main():
 	#random.uniform(0,1) <= 0.9
         if(random.uniform(0,1) <= 0.9):
             genes1, genes2 = crossover(pai1.genes,pai2.genes)
-            filho1 = Cromossomo(genes1, pai1, pai2, i+i, 'C')
-            filho2 = Cromossomo(genes2, pai1, pai2, i+i, 'C')
+            filho1 = Cromossomo(genes1, pai1, pai2, i+1, 'C')
+            filho2 = Cromossomo(genes2, pai1, pai2, i+1, 'C')
         
            
         #para mutacao seria
@@ -165,7 +196,7 @@ def main():
                 filho1.fitness = fitness(filho1.genes)
                 filho1.gerador = 'B'
             else:
-                filho1 = Cromossomo(pai1.genes, pai1, None, i+i, 'M')
+                filho1 = Cromossomo(pai1.genes, pai1, None, i+1, 'M')
                 
         #para mutacao seria
         #     random.uniform(0,1) <= 0.4
@@ -175,7 +206,7 @@ def main():
                 filho2.fitness = fitness(filho2.genes)
                 filho2.gerador = 'B'
             else:
-                filho2 = Cromossomo(pai2.genes, pai2, None, i+i, 'M')
+                filho2 = Cromossomo(pai2.genes, pai2, None, i+1, 'M')
 
                 
 
@@ -204,50 +235,24 @@ def main():
             maximo.append(populacao[0].fitness)
             minimo.append(populacao[-1].fitness)
 
+        print 'Iteracao ' + str(i) + ' fitness max:' + str(maximo[i]) + ' fitness min:' + str(minimo[i])
 
-        #print '\n\nIteracao ' + str(i)
-        #print 'Melhor fitness ' +  str(populacao[0].fitness)
-        #for ind in populacao[0:5]:
-        #    print 'Individuo: ' + str(binVectorToIntVector(ind.genes))
-        #    print 'Fitness: ' + str(ind.fitness)
         if FITNESS_TYPE == 1:
-            if(populacao[0].fitness == 0):
-                melhorIndividuo = populacao[0]
+            if(populacao[0].fitness == 0 and not melhorIndSalvo):
+                melhorIndividuo = copy.deepcopy(populacao[0])
+                melhorIndSalvo = True
             if(populacao[-1].fitness == 0):
                 break
         else:
-            if(populacao[0].fitness == 1):
-                melhorIndividuo = populacao[0]
+            if(populacao[0].fitness == 1 and not melhorIndSalvo):
+                melhorIndividuo = copy.deepcopy(populacao[0])
+                melhorIndSalvo = True
             if(populacao[-1].fitness == 1):
                 break
         i += 1
     #End While
 
-    print '\n\nMelhor individuo:'
-    print 'Genes: ' +  str(binVectorToIntVector(melhorIndividuo.genes))
-    print 'Fitness ' +  str(melhorIndividuo.fitness)
-    print 'Gerador ' +  str(melhorIndividuo.gerador)
-    print 'Geracao ' +  str(melhorIndividuo.geracao)
-    pai1 = melhorIndividuo.pai1
-    pai2 = melhorIndividuo.pai2
-    print 'Pai1: '
-    if(pai1 is not None):
-        print '\tGenes ' + str(binVectorToIntVector(pai1.genes))
-        print '\tFitness ' +  str(pai1.fitness)
-        print '\tGerador ' +  str(pai1.gerador)
-        print '\tGeracao ' +  str(pai1.geracao)
-    else:
-        print '\tNone'
-
-    print 'Pai2: '
-    if(pai2 is not None):
-        print '\tGenes ' + str(binVectorToIntVector(pai2.genes))
-        print '\tFitness ' +  str(pai2.fitness)
-        print '\tGerador ' +  str(pai2.gerador)
-        print '\tGeracao ' +  str(pai2.geracao)
-    else:
-        print '\tNone'
-
+    mostrarMelhorIndividuo(melhorIndividuo)
     gplt = Gnuplot.Gnuplot(debug=1)
 
     gplt.reset()
