@@ -3,9 +3,10 @@ import random
 import itertools
 import Gnuplot
 import copy
+import numpy as np
 
-FITNESS_TYPE = 1 #fitness = choques
-#FITNESS_TYPE = 2  #fitness = 1/(1+choques)
+#FITNESS_TYPE = 1 #fitness = choques
+FITNESS_TYPE = 2  #fitness = 1/(1+choques)
 
 
 class Cromossomo:
@@ -158,6 +159,7 @@ def main():
     media = []
     maximo = []
     minimo = []
+    variancia = []
     melhorIndSalvo = False
     
     #a partir daqui tem que ser feito o laco para poder tentar encontrar a solucao para o problema
@@ -227,6 +229,7 @@ def main():
         for ind in populacao:
            soma += ind.fitness
         media.append(soma/len(populacao))
+        variancia.append(np.var(media[i]))
 
         if FITNESS_TYPE == 1:
             minimo.append(populacao[0].fitness)
@@ -260,12 +263,21 @@ def main():
     minData = Gnuplot.Data(minimo, title='Fitness Mínimo')
     maxData = Gnuplot.Data(maximo, title='Fitness Máximo')
     gplt('set data style lines')
-    gplt.xlabel('Input')
-    gplt.ylabel('Output')
+    gplt.xlabel('Iteracao')
+    gplt.ylabel('Fitness')
     if FITNESS_TYPE == 2:
         gplt('set yrange [0:1.5]')
         
     gplt.plot(maxData, mediaData, minData)
+    raw_input('Please press return to continue...\n')
+
+    gplt.reset()
+    varianciaData = Gnuplot.Data(variancia, title='Variancia')
+    gplt('set data style lines')
+    gplt.xlabel('Iteracao')
+    gplt.ylabel('Variância Fitness Médio')
+        
+    gplt.plot(varianciaData)
     raw_input('Please press return to continue...\n')
 
 if __name__ == '__main__':
